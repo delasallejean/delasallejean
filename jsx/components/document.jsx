@@ -1,7 +1,7 @@
 import React from "react"
 import Block from "./block";
-import BlockStore from "./stores/blockStore.jsx"
-import {BlockActionCreator} from "./actions/blockActions.jsx"
+import BlockStore from "../stores/blockStore.jsx"
+import {BlockActionCreator} from "../actions/blockActions.jsx"
 
 
 export default React.createClass({
@@ -29,7 +29,7 @@ export default React.createClass({
     },
 
     _onBlockDeleted: function (blockId) {
-        if (blockId == 0) {
+        if (blockId == null) {
             this.setState({
                 rootBlocks: BlockStore.getRootBlocks()
             });

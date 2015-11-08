@@ -1,6 +1,6 @@
 import React from "react";
-import {BlockActionCreator} from "./actions/blockActions.jsx";
-import BlockStore from "./stores/blockStore.jsx";
+import {BlockActionCreator} from "../actions/blockActions.jsx";
+import BlockStore from "../stores/blockStore.jsx";
 import BlockButton from "./blockButton.jsx";
 
 let Block = React.createClass({
@@ -46,6 +46,15 @@ let Block = React.createClass({
         BlockActionCreator.createDeleteBlockAction(this.props.blockId);
     },
 
+    enableEdition: function() {
+        aloha(this.refs.blockContainer);
+        let ref = this.refs.blockContainer
+        setTimeout(() => {
+            aloha.mahalo(ref);
+            console.log('canceling aloha');
+        }, 2000);
+    },
+
     render: function() {
         let childrenBlocks = this.state.blocks.map((b) => {
             return (
@@ -55,9 +64,10 @@ let Block = React.createClass({
 
         return (
             <div className="block" data-block-id={this.props.blockId} data-type={this.props.type}>
-                {this.props.children}
+                <div ref="blockContainer">{this.props.children}</div>
                 {childrenBlocks}
                 <div className="actions">
+                    <BlockButton tooltip="Edit" text="edit" onClick={this.enableEdition} />
                     <BlockButton tooltip="Add block here" text="^" onClick={this.doStuff} />
                     <BlockButton tooltip="Add block after" text="v" onClick={this.doStuff} />
                     <BlockButton tooltip="Delete block" text="x" onClick={this.deleteBlock} />

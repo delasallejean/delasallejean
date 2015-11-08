@@ -4,7 +4,6 @@ let gulp = require('gulp');
 let browserify = require('browserify');
 let babelify = require('babelify');
 let source = require('vinyl-source-stream');
-let livereload = require('gulp-livereload');
 let uglify = require('gulp-uglify');
 let streamify = require('gulp-streamify');
 
@@ -26,12 +25,10 @@ gulp.task('build', function () {
         .bundle()
         .pipe(source('bundle.js'))
         .pipe(streamify(uglify()))
-        .pipe(gulp.dest(PATHS.destination))
-        .pipe(livereload());
+        .pipe(gulp.dest(PATHS.destination));
 });
 
 
 gulp.task('watch', () => {
-    livereload.listen();
     gulp.watch(PATHS.jsx, ['build']);
 });

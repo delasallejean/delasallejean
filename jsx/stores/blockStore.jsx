@@ -7,6 +7,7 @@ class BlockStore extends EventEmitter {
     constructor() {
         super();
         this.blocks = [];
+        this.setMaxListeners(0);
     }
 
     getRootBlocks() {
@@ -51,21 +52,26 @@ class BlockStore extends EventEmitter {
 
     loadBlocks(documentId) {
         // TODO: generate a proper url using documentid
-        let url = 'http://ec2-52-18-91-104.eu-west-1.compute.amazonaws.com:8081/blocks';
-        $.get(url)
-            .done((data) => {
-                this.blocks = data.blocks.map((b) => {
-                    return {
-                        id: b.id,
-                        parentId: b.parent_id,
-                        type: b.type,
-                        content: b.content,
-                        position: b.position
-                    };
+        //let url = 'http://ec2-52-18-91-104.eu-west-1.compute.amazonaws.com:8081/blocks';
+        //let promise = $.get(url);
+        let self = this;
+        let promise = new Promise((resolve, reject) => {
+            let fakeBlocks = [];
+            for (let i = 0; i < 10; i++) {
+                fakeBlocks.push({
+                    id: i,
+                    parent_id: null,
+                    content: 'content ' + i.toString(),
+                    position: i,
+                    type: 'tt'
                 });
+            }
+            resolve({ blocks: fakeBlocks });
+        });
 
-                this.emitBlocksLoaded()
-            });
+        promise.then((data) => {
+            self._loadBlocksCallback(data.blocks);
+        });
     }
 
     getChildrenBlocks(blockId) {
@@ -84,7 +90,6 @@ class BlockStore extends EventEmitter {
         let blocksToRemove = [originalBlockToRemove];
 
         let parentId = blockId;
-
         childrenBlocks = this.blocks.filter((b) => b.parentId == parentId);
         do {
             childrenBlocks.forEach((b) => {
@@ -102,6 +107,20 @@ class BlockStore extends EventEmitter {
         });
 
         this.emitBlockDeleted(originalBlockToRemove.parentId);
+    }
+
+    _loadBlocksCallback(blocks) {
+        this.blocks = blocks.map((b) => {
+            return {
+                id: b.id,
+                parentId: b.parent_id,
+                type: b.type,
+                content: b.content,
+                position: b.position
+            };
+        });
+
+        this.emitBlocksLoaded()
     }
 }
 
