@@ -12,13 +12,30 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<h1>POCs</h1>
-<h2>React</h2>
+
+<div>
+
+    <button onclick="trs1()">PLAGIA</button>
+    <button onclick="trs2()">NAKLE</button>
+
+</div>
+
 <div id="document"></div>
 <script>
-    const msg = new SpeechSynthesisUtterance('calue eske tu fermerais pas un peu ta gueuele ?');
-    msg.lang = 'fr-FR';
-    window.speechSynthesis.speak(msg);
+
+    function trs1() {
+        const msg = new SpeechSynthesisUtterance('calue eske tu fermerais pas un peu ta gueuele ?');
+        msg.lang = 'fr-FR';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function trs2() {
+        const msg = new SpeechSynthesisUtterance('NAKLE KAUNAITABLE');
+        msg.lang = 'fr-FR';
+        window.speechSynthesis.speak(msg);
+    }
+
+
 </script>
 </body>
 </html>
