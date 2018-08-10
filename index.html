@@ -16,7 +16,8 @@
 <h2>React</h2>
 <div id="document"></div>
 <script>
-    var msg = new SpeechSynthesisUtterance('calue eske tu fermerais pas un peu ta gueuele ?');
+    const msg = new SpeechSynthesisUtterance('calue eske tu fermerais pas un peu ta gueuele ?');
+    msg.lang = 'fr-FR';
     window.speechSynthesis.speak(msg);
 </script>
 </body>
