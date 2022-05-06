@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image swipe compare</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        .page {
+            padding-top: 20px;
+            padding-left: 20px;
+        }
+
+        .page .input-container {
+            margin-top: 20px;
+        }
+
+        .img-comp-container {
+            position: relative;
+        }
+
+        .img-comp-img {
+            position: absolute;
+            width: auto;
+            height: auto;
+            overflow: hidden;
+        }
+
+        .img-comp-img img {
+            display: block;
+            vertical-align: middle;
+        }
+
+        .img-comp-slider {
+            position: absolute;
+            z-index: 9;
+            cursor: ew-resize;
+            width: 40px;
+            height: 40px;
+            background-color: #2196F3;
+            opacity: 0.7;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page">
+    <h1>Image slide compare</h1>
+    <div>
+        <div>Files</div>
+        <form onsubmit="updateImages(event)">
+            <div class="input-container">
+                <label>Original</label>
+                <input type="file" name="originalFile"/>
+            </div>
+            <div class="input-container">
+                <label>New</label>
+                <input type="file" name="newFile"/>
+            </div>
+            <div class="input-container">
+                <input type="submit"/>
+            </div>
+        </form>
+    </div>
+    <div class="img-comp-container"></div>
+</div>
+
+<script>
+    (() => {
+        window.updateImages = async (ev) => {
+            ev.preventDefault();
+            const formElement = ev.target;
+            const file1 = formElement.elements.originalFile.files[0];
+            const file2 = formElement.elements.newFile.files[0];
+
+            const image1 = {width: null, height: null, el: null};
+            const image2 = {width: null, height: null, el: null};
+
+
+            const fileReader = new FileReader();
+            await new Promise(resolve => {
+                fileReader.onload = function (e) {
+                    const tmpImg = new Image();
+                    tmpImg.src = e.target.result;
+                    tmpImg.onload = loadEvent => {
+                        image1.width = loadEvent.target.width;
+                        image1.height = loadEvent.target.height;
+                        image1.el = tmpImg;
+                        resolve();
+                    }
+                };
+                fileReader.readAsDataURL(file1);
+            });
+            await new Promise(resolve => {
+                fileReader.onload = function (e) {
+                    const tmpImg = new Image();
+                    tmpImg.src = e.target.result;
+                    tmpImg.onload = loadEvent => {
+                        image2.width = loadEvent.target.width;
+                        image2.height = loadEvent.target.height;
+                        image2.el = tmpImg;
+                        resolve();
+                    };
+                };
+                fileReader.readAsDataURL(file2);
+            });
+
+            if ((image1.width !== image2.width) || (image1.height !== image2.height)) {
+                alert('Images must have the same widths/heights');
+                return;
+            }
+
+            const containerEl = document.querySelector('.img-comp-container');
+            slideCompare.compare(containerEl, image1, image2);
+        };
+
+        const slideCompare = {
+            _clicked: false,
+            _img: null,
+            _slider: null,
+            _w: 0,
+            _initialized: false,
+
+            compare: function (containerElement, image1, image2) {
+                if (!this._initialized) {
+                    window.addEventListener("mousemove", this._slideMove.bind(this));
+                    window.addEventListener("touchmove", this._slideMove.bind(this));
+                    window.addEventListener("mouseup", () => this._clicked = false);
+                    window.addEventListener("touchend", () => this._clicked = false);
+                    this._initialized = true;
+                }
+
+                containerElement.innerHTML = '';
+                const originalImageDivEl = document.createElement('div');
+
+                originalImageDivEl.className = 'img-comp-img img-original';
+                originalImageDivEl.appendChild(image1.el);
+
+                const newImageDivEl = document.createElement('div');
+                newImageDivEl.className = 'img-comp-img img-comp-overlay';
+                newImageDivEl.appendChild(image2.el);
+
+                containerElement.appendChild(originalImageDivEl);
+                containerElement.appendChild(newImageDivEl);
+
+                const slider = document.createElement("DIV");
+                slider.setAttribute("class", "img-comp-slider");
+                image1.el.parentElement.insertBefore(slider, image1.el);
+
+                slider.style.top = (image1.height / 2) - (40 / 2) + "px";
+                slider.style.left = (image1.width / 2) - (40 / 2) + "px";
+                newImageDivEl.style.width = (image2.width / 2) + "px";
+
+                slider.addEventListener("mousedown", this._sliderReady.bind(this));
+                slider.addEventListener("touchstart", this._sliderReady.bind(this));
+
+                this._w = image1.el.scrollWidth;
+                this._img = newImageDivEl;
+                this._slider = slider;
+            },
+            _sliderReady: function (e) {
+                e.preventDefault();
+                this._clicked = 1;
+            },
+            _slideMove: function (e) {
+                let pos;
+                if (this._clicked === false) {
+                    return false;
+                }
+                pos = this._getCursorPos(e);
+                if (pos < 0) {
+                    pos = 0;
+                }
+                if (pos > this._w) {
+                    pos = this._w;
+                }
+                this._img.style.width = pos + "px";
+                this._slider.style.left = this._img.offsetWidth - (this._slider.offsetWidth / 2) + "px";
+            },
+            _getCursorPos: function (e) {
+                let a, x;
+                e = (e.changedTouches) ? e.changedTouches[0] : e;
+                a = this._img.getBoundingClientRect();
+                x = e.pageX - a.left;
+                x = x - window.pageXOffset;
+                return x;
+            }
+        };
+
+    })();
+</script>
+
+</body>
+</html>
